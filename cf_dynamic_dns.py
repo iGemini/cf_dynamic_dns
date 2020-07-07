@@ -3,6 +3,7 @@ import requests
 
 # CONFIG SECTION
 #------------------------------
+CF_USER = ''
 CF_API_TOKEN = ''
 DNS_ZONE_NAME = ''
 DNS_ZONE_ID = ''
