@@ -1,5 +1,7 @@
 import sys
 import requests
+import logging
+from systemd.journal import JournalHandler
 
 # CONFIG SECTION
 #------------------------------
@@ -13,6 +15,14 @@ RECORD_NAME = ''
 API_ENDPOINT = 'https://api.cloudflare.com/client/v4/'
 API_HEADERS = { 'X-Auth-Email': CF_USER, 'X-Auth-Key': CF_API_KEY}
 
+# SET UP LOGGING
+# -----------------------------
+logger = logging.getLogger('cf-dynamic-dns')
+logger.propagate = False
+logger.setLevel(logging.DEBUG)
+logger.addHandler(JournalHandler(SYSLOG_IDENTIFIER = 'cf-dynamic-dns'))
+# -----------------------------
+
 def main():
     externalIP = GetExternalIP()
     records = GetZoneRecords()
@@ -23,9 +33,10 @@ def main():
         recordIP = record.get('content')
 
         if (recordIP == externalIP):
-            sys.exit('Record is up to date.')
+            logger.info('Record is up to date.')
+            sys.exit()
 
-        print('Record does not match external IP.')
+        logger.info('Record does not match external IP.')
 
         payload = {
             'type': 'A',
@@ -35,24 +46,26 @@ def main():
             'proxied': record.get('proxied')
         }
 
-        try: 
+        try:
             result = requests.put(API_ENDPOINT + 'zones/' + DNS_ZONE_ID + '/dns_records/' + recordID, headers = API_HEADERS, json = payload, timeout = 5).json()
         except requests.Timeout as ex:
-                sys.exit('Record update timed out. {}'.format(ex))
+                logger.error('Record update timed out. {}'.format(ex))
+                sys.exit()
         else:
             success = result.get('success')
             if not success:
-                print('There was an issue updating the record. {}'.format(result))
+                logger.error('There was an issue updating the record. {}'.format(result))
             else:
-                print('Record was successfully updated.')
+                logger.info('Record was successfully updated.')
     else:
-        print('There was a problem fetching the record data. {}'.format(records))
+        logger.error('There was a problem fetching the record data. {}'.format(records))
 
 def GetExternalIP():
     try:
         result = requests.get('https://ipv4.icanhazip.com', timeout = 5)
     except requests.Timeout as ex:
-        sys.exit('External IP lookup timed out. {}'.format(ex))
+        logger.error('External IP lookup timed out. {}'.format(ex))
+        sys.exit()
     else:
         return result.text.rstrip()
 
@@ -61,7 +74,8 @@ def GetZoneRecords():
     try:
         result = requests.get(API_ENDPOINT + 'zones/' + DNS_ZONE_ID + '/dns_records/', headers = API_HEADERS, params = payload, timeout = 5).json()
     except requests.Timeout as ex:
-        sys.exit('Zone record lookup timed out. {}'.format(ex))
+        logger.error('Zone record lookup timed out. {}'.format(ex))
+        sys.exit()
     else:
         return result
 
