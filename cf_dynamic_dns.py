@@ -3,24 +3,28 @@ import requests
 import logging
 from systemd.journal import JournalHandler
 
+
 # CONFIG SECTION
-#------------------------------
+# -----------------------------
 CF_USER = ''
 CF_API_TOKEN = ''
 DNS_ZONE_NAME = ''
 DNS_ZONE_ID = ''
 RECORD_NAME = ''
-#------------------------------
+# -----------------------------
 
 API_ENDPOINT = 'https://api.cloudflare.com/client/v4/'
 API_HEADERS = { 'X-Auth-Email': CF_USER, 'X-Auth-Key': CF_API_KEY}
 
 # SET UP LOGGING
 # -----------------------------
+logHandler = JournalHandler(SYSLOG_IDENTIFIER = 'cf-dynamic-dns')
+formatter = logging.Formatter('[%(levelname)s] - %(message)s')
+logHandler.setFormatter(formatter)
 logger = logging.getLogger('cf-dynamic-dns')
 logger.propagate = False
 logger.setLevel(logging.DEBUG)
-logger.addHandler(JournalHandler(SYSLOG_IDENTIFIER = 'cf-dynamic-dns'))
+logger.addHandler(logHandler)
 # -----------------------------
 
 def main():
