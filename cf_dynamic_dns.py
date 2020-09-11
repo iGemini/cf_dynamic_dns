@@ -7,7 +7,7 @@ from systemd.journal import JournalHandler
 # CONFIG SECTION
 # -----------------------------
 CF_USER = ''
-CF_API_TOKEN = ''
+CF_API_KEY = ''
 DNS_ZONE_NAME = ''
 DNS_ZONE_ID = ''
 RECORD_NAME = ''
