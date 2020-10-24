@@ -3,7 +3,7 @@ import requests
 import logging
 from systemd.journal import JournalHandler
 
-
+# -----------------------------
 # CONFIG SECTION
 # -----------------------------
 CF_USER = ''
@@ -16,6 +16,7 @@ RECORD_NAME = ''
 API_ENDPOINT = 'https://api.cloudflare.com/client/v4/'
 API_HEADERS = { 'X-Auth-Email': CF_USER, 'X-Auth-Key': CF_API_KEY}
 
+# -----------------------------
 # SET UP LOGGING
 # -----------------------------
 logHandler = JournalHandler(SYSLOG_IDENTIFIER = 'cf-dynamic-dns')
