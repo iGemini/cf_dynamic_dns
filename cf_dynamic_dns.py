@@ -20,7 +20,7 @@ API_HEADERS = { 'X-Auth-Email': CF_USER, 'X-Auth-Key': CF_API_KEY}
 # SET UP LOGGING
 # -----------------------------
 logHandler = JournalHandler(SYSLOG_IDENTIFIER = 'cf-dynamic-dns')
-formatter = logging.Formatter('[%(levelname)s] - %(message)s')
+formatter = logging.Formatter('%(asctime)s - [%(levelname)s] - %(message)s')
 logHandler.setFormatter(formatter)
 logger = logging.getLogger('cf-dynamic-dns')
 logger.propagate = False
